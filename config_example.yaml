@@ -1,0 +1,22 @@
+# Configuration file for category and account mapping
+# strict_mapping: true means program will stop if no mapping found
+# strict_mapping: false means program will continue with empty fields if no mapping found
+strict_mapping: true
+
+# Payee to category mapping
+category_mappings:
+  - category: "转账"
+    subcategory: ""
+    payees: 
+      - "建设银行(3480)"
+  # Shopping
+  - category: "购物"
+    subcategory: "网购"
+    payees:
+      - "京东"
+      - "美团"
+
+# Payment method to account mapping
+account_mappings:
+  - payment_method: "零钱"
+    account: "微信零钱"
