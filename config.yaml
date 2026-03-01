@@ -1,0 +1,208 @@
+# Configuration file for category and account mapping
+# strict_mapping: true means program will stop if no mapping found
+# strict_mapping: false means program will continue with empty fields if no mapping found
+strict_mapping: true
+
+# Payee to category mapping
+category_mappings:
+  - category: "转账"
+    subcategory: ""
+    payees: 
+      - "建设银行(3480)"
+  - category: "日常开销"
+    subcategory: "服装"
+    payees: 
+      - "广州栖觅服饰商行（个人独资）"      
+  # Shopping
+  - category: "购物"
+    subcategory: "网购"
+    payees:
+      - "京东"
+      - "美团"
+      - "拼多多平台商户"
+      - "京东商城平台商户"
+      - "淘宝平台商户"
+
+  - category: "购物"
+    subcategory: "超市"
+    payees:
+      - "美天悦购"
+      - "蔚然锦和连锁超市广州龙洞东大街店"
+      - "易佳壹超市"
+      - "华润万家生活超市（广州）有限公司"
+      - "美团平台商户"
+      - "廉江市安铺民豪购物广场"
+      - "好想来"
+
+  # Food & Dining
+  - category: "休闲"
+    subcategory: "电影"
+    payees:
+      - "万达电影"
+      - "万达电影股份有限公司"
+  # Food & Dining
+  - category: "食物"
+    subcategory: ""
+    payees:
+      - "燊记雷州鸭仔饭（元岗店）"
+      - "福建特色小笼包龙洞店"
+      - "旺膳来(元岗店)"
+      - "广州洪记普宁厚弥粥"
+      - "森记"
+      - "赵金纯"
+      - "李雄锋"
+      - "潮汕隆江猪脚饭"
+      - "香港通胜堂茶餐厅（龙洞店）"
+      - "小湘厨木桶饭"
+      - "茉莉奶白"
+      - "德兴脆皮烧鹅东莞莞城店"
+      - "桃子大叔与他的檬茶茶"
+      - "苏晓玥"
+      - "富贵烧腊（花城汇南区店）"
+      - "西树泡芙"
+      - "正宗潮味旺膳来"
+      - "全天福便利店"
+      - "美宜佳便利店"
+      - "贤哥碳烤烧烤"
+      - "知食小双"
+      - "胖仔烧饼"
+      - "德盛鑫旺"
+      - "新壹便利店龙洞店（新）"
+      - "沙县小吃(龙洞牌坊店)"
+      - "杨贝乐糕点凌塘店"
+      - "广州市黄埔区渝城小雨火锅店"
+      - "世纪新壹便利店龙洞店"
+      - '好想来零食乐园'
+      - "麦当劳"
+      - "蜜雪冰城"
+      - "果小佳龙洞店"
+      - "重庆诚企瑞餐饮管理有限公司"
+      - "正合潮汕牛肉粿条汤"
+      - "东川饭局元岗横路店"
+      - "赵一鸣零食广东广州龙洞步行街店"
+      - "正宗四川麻辣凉拌菜"
+      - "老碗会陕西手工面"
+      - "九里鲜粿条手工面"
+      - "勇大厨大碗饭（天河客运站店）"
+      - "京大司北京烤鸭卷龙洞店"
+      - "荔園果舍（龙洞店）"
+      - "四海水果店龙洞店"
+      - "魏大厨广州龙洞店"
+      - "冯小小现切水煮牛肉（广州店）"
+      - "Mihimihi（天河南店）"
+      - "一万粒（广州）生命科技有限公司"
+      - "谢记大树烤肉"
+      - "大米先生"
+      - "广州市天河区麦满香烘焙店"
+      - "星期六鲜果园"
+      - "广州萨莉亚"
+      - "闲情驿站"
+      - "Gavin"
+        
+  - category: "食物"
+    subcategory: "饮料"
+    
+    payees:
+      - "luckin coffee"
+      - "益禾堂"
+      - "喜茶"
+  # Utilities
+  - category: "账单"
+    subcategory: "电费"
+    
+    payees:
+      - "智慧水电管家"
+  - category: "账单"      
+    subcategory: "电话"
+    payees:
+      - "中国广电"
+      - "手机充值-中国移动"
+  - category: "账单"      
+    subcategory: "开发"
+    payees:
+      - "腾讯云费用账户-移动支付"
+   
+      
+  - category: "个人服务"
+    subcategory: "理发"
+    payees:
+      - "米来造型(龙洞店)"
+  # Transfer
+  - category: "转账"
+    subcategory: "个人转账"
+    payees:
+      - "梁绮妮"
+      - "爸爸"
+      - "根忠和里16号"
+      - "芳芳"
+      - "人生若只如初见～"
+      - "汪小姐_世通电脑"
+
+  # Transportation
+  - category: "交通"
+    subcategory: ""
+    payees:
+      - "广州地铁过闸交易"
+      - "东莞市轨道交通有限公司"
+      - "东莞通公司"
+      - "广州骑安"
+      - "地铁悠选"
+      - "中铁网络"
+      - "中交出行"
+      - "深圳市万通顺达科技股份有限公司"
+      - "安安出行"
+
+  # Shopping (General)
+  - category: "购物"
+    subcategory: ""
+    payees:
+      - "广东赛壹便利店有限公司"
+      - "赵一鸣"
+      - "广州糖糖三元面包供销社"
+      - "金穗丰便利店"
+      - "天福"
+      - "蔚然锦和"
+  # Personal Services
+  - category: "个人服务"
+    subcategory: ""
+    payees:
+      - "时尚满意理发店"
+
+  # Travel
+  - category: "旅行"
+    subcategory: ""
+    payees:
+      - "携程旅行网"
+
+  - category: "微信红包"
+    subcategory: ""
+    payees:
+      - "庄映光"
+  # Others - 未分类的收款人
+  - category: "其他"
+    subcategory: ""
+    payees:
+      - "镝锑时代"
+      - "庄映光"
+      - "AA李小帅"
+      - "缘分天空"
+      - "代理财神爷"
+      - "大众专柜"
+      - "天河港汇港货商行"
+      - "Huanᴗg·ᰔᩚ"
+      - "刘文秋"
+      - "谭立云"
+      - "龙二少"
+      - "蓝叶"
+# Payment method to account mapping
+account_mappings:
+  - payment_method: "零钱"
+    account: "微信零钱"
+  - payment_method: "建设银行储蓄卡(3480)"
+    account: "建设银行"
+  - payment_method: "/"
+    account: "微信零钱"
+  - payment_method: "工商银行储蓄卡(1234)"
+    account: "工行储蓄卡"
+  - payment_method: "农业银行储蓄卡(5678)"
+    account: "农行储蓄卡"

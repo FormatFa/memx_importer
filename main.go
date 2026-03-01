@@ -105,11 +105,8 @@ func loadConfig(filename string) (*Config, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
-			// 如果配置文件不存在，返回默认配置
-			return &Config{
-				CategoryMappings: []CategoryMapping{},
-				StrictMapping:    true,
-			}, nil
+			// 如果配置文件不存在，直接报错
+			return nil, fmt.Errorf("配置文件 '%s' 不存在，请先创建配置文件", filename)
 		}
 		return nil, err
 	}
@@ -117,7 +114,7 @@ func loadConfig(filename string) (*Config, error) {
 	var config Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("解析配置文件失败: %v", err)
 	}
 
 	return &config, nil
@@ -215,6 +212,23 @@ func getCellValueFromSlice(row []string, colIdx int) string {
 func convertToMemxRecords(weChatRecords []WeChatRecord, config *Config) ([]MemxRecord, error) {
 	var memxRecords []MemxRecord
 
+	// 如果开启严格模式，先检查所有收款人的映射情况
+	if config.StrictMapping {
+		missingPayees := validateAllPayees(weChatRecords, config)
+		if len(missingPayees) > 0 {
+			fmt.Printf("\n错误: 以下 %d 个收款人找不到类目映射，请补充配置文件:\n", len(missingPayees))
+			for i, payee := range missingPayees {
+				fmt.Printf("  %d. '%s'\n", i+1, payee)
+			}
+			fmt.Printf("\n当前类目映射配置:\n")
+			for i, mapping := range config.CategoryMappings {
+				fmt.Printf("  %d. 收款人: %v -> 类目: '%s', 子类目: '%s'\n",
+					i+1, mapping.Payees, mapping.Category, mapping.Subcategory)
+			}
+			os.Exit(1)
+		}
+	}
+
 	for _, weChat := range weChatRecords {
 		// 解析日期格式
 		date, err := parseDateTime(weChat.交易时间)
@@ -226,7 +240,16 @@ func convertToMemxRecords(weChatRecords []WeChatRecord, config *Config) ([]MemxR
 		amount := strings.ReplaceAll(weChat.金额, "¥", "")
 
 		// 查找类目映射
-		category, subcategory := findCategoryMapping(weChat.交易对方, config)
+		var category, subcategory string
+		if weChat.交易类型 == "微信红包" {
+			category = "微信红包"
+			subcategory = ""
+		} else if weChat.交易类型 == "其他" {
+			category = "其他"
+			subcategory = ""
+		} else {
+			category, subcategory = findCategoryMapping(weChat.交易对方, config)
+		}
 
 		// 查找账号映射
 		account := findAccountMapping(weChat.支付方式, config)
@@ -243,11 +266,21 @@ func convertToMemxRecords(weChatRecords []WeChatRecord, config *Config) ([]MemxR
 			}
 		}
 
+		// 映射收支类型
+		var transactionType string
+		if weChat.收支 == "支出" {
+			transactionType = "Withdrawal"
+		} else if weChat.收支 == "收入" {
+			transactionType = "Deposit"
+		} else {
+			transactionType = weChat.收支
+		}
+
 		memx := MemxRecord{
 			ID:  weChat.交易单号,
 			日期:  date,
 			状态:  "未核实",
-			类型:  weChat.收支,
+			类型:  transactionType,
 			账户:  account, // 映射后的账号
 			收款人: weChat.交易对方,
 			类目:  category,
@@ -278,6 +311,50 @@ func parseDateTime(datetime string) (string, error) {
 	return t.Format("2006-01-02"), nil
 }
 
+// validateAllPayees 验证所有收款人的映射情况，返回未映射的收款人列表
+func validateAllPayees(weChatRecords []WeChatRecord, config *Config) []string {
+	missingPayeesMap := make(map[string]bool)
+
+	for _, weChat := range weChatRecords {
+		// 跳过微信红包和其他类型，它们不需要映射
+		if weChat.交易类型 == "微信红包" || weChat.交易类型 == "其他" {
+			continue
+		}
+
+		// 检查收款人是否为空
+		if weChat.交易对方 == "" {
+			continue
+		}
+
+		// 检查是否找到映射
+		found := false
+		for _, mapping := range config.CategoryMappings {
+			for _, p := range mapping.Payees {
+				if p == weChat.交易对方 {
+					found = true
+					break
+				}
+			}
+			if found {
+				break
+			}
+		}
+
+		// 如果没找到映射，添加到缺失列表
+		if !found {
+			missingPayeesMap[weChat.交易对方] = true
+		}
+	}
+
+	// 将 map 转换为 slice
+	missingPayees := make([]string, 0, len(missingPayeesMap))
+	for payee := range missingPayeesMap {
+		missingPayees = append(missingPayees, payee)
+	}
+
+	return missingPayees
+}
+
 // findCategoryMapping 查找类目映射
 func findCategoryMapping(payee string, config *Config) (string, string) {
 	// 如果收款人为空，跳过映射
@@ -295,7 +372,21 @@ func findCategoryMapping(payee string, config *Config) (string, string) {
 
 	// 如果没有找到映射且开启了严格模式
 	if config.StrictMapping {
+		fmt.Printf("当前配置的类目映射数量: %d\n", len(config.CategoryMappings))
+		for i, mapping := range config.CategoryMappings {
+			fmt.Printf("  %d. 收款人: %v -> 类目: '%s', 子类目: '%s'\n",
+				i+1, mapping.Payees, mapping.Category, mapping.Subcategory)
+		}
 		log.Fatalf("错误: 找不到收款人 '%s' 的类目映射，请补充配置文件", payee)
+
+	}
+
+	// 打印警告信息和当前配置
+	fmt.Printf("警告: 找不到收款人 '%s' 的类目映射，将归类到未知类目\n", payee)
+	if !categoryConfigPrinted {
+		fmt.Printf("当前类目映射配置:\n")
+
+		categoryConfigPrinted = true
 	}
 
 	return "", ""
@@ -320,7 +411,8 @@ func inferAccountFromPayee(payee string, paymentMethod string) string {
 	}
 }
 
-var configPrinted bool = false
+var categoryConfigPrinted bool = false
+var accountConfigPrinted bool = false
 
 // findAccountMapping 查找账号映射
 func findAccountMapping(paymentMethod string, config *Config) string {
@@ -332,12 +424,12 @@ func findAccountMapping(paymentMethod string, config *Config) string {
 
 	// 如果没有找到账号映射，打印警告信息和配置
 	fmt.Printf("警告: 找不到支付方式 '%s' 的账号映射，将归类到未知账户\n", paymentMethod)
-	if !configPrinted {
+	if !accountConfigPrinted {
 		fmt.Printf("当前账号映射配置:\n")
 		for i, mapping := range config.AccountMappings {
 			fmt.Printf("  %d. 支付方式: '%s' -> 账户: '%s'\n", i+1, mapping.PaymentMethod, mapping.Account)
 		}
-		configPrinted = true
+		accountConfigPrinted = true
 	}
 
 	return ""
